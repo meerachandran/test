@@ -1,0 +1,26 @@
+<?php
+/*** Function written to alter site information form and save
+** another field site api key and change form button text to
+** Update Configuration. 
+**/
+ function custom_form_alter(&$form, $form_state, $form_id) {
+   
+	if ($form_id == 'system_site_information_settings') {
+		 $api_key = \Drupal::state()->get('siteapikey') ?: 'No API Key yet';
+		 $form['site_information']['site_api_key'] = Array(
+			'#type' => 'textfield',
+			'#title' => t('Site API Key'),
+		    '#default_value' =>  $api_key,
+		  );
+		 $form['actions']['submit']['#value'] = "Update Configuration";
+		 $form['#submit'][] = 'custom_handler';
+	}
+}
+
+function custom_handler($form, &$form_state) {
+	if ($form['site_information']['site_api_key']['#value'] != 'No API Key yet'){
+	  \Drupal::state()->set('siteapikey', $form['site_information']['site_api_key']['#value']);
+	   $msg = 'Site API Key has been saved with the value ' . $form['site_information']['site_api_key']['#value'];
+	  drupal_set_message($msg);
+	}
+}
